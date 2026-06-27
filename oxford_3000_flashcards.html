@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oxford 3000 Flashcards</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX (Dipakukan ke versi stabil 7.21.4 untuk mencegah SyntaxError) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.4/babel.min.js"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom CSS for 3D Flip Effect */
+        body {
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-presets="react">
+        const { useState, useEffect } = React;
+
+        // Data 20 kata pertama Oxford 3000
+        const vocabData = [
+            { word: "a, an", type: "indefinite article", level: "A1", translation: "sebuah, suatu, seekor" },
+            { word: "abandon", type: "v.", level: "B2", translation: "meninggalkan, membiarkan" },
+            { word: "ability", type: "n.", level: "A2", translation: "kemampuan, kebolehan" },
+            { word: "able", type: "adj.", level: "A2", translation: "mampu, bisa" },
+            { word: "about", type: "prep., adv.", level: "A1", translation: "tentang, sekitar, kira-kira" },
+            { word: "above", type: "prep., adv.", level: "A1", translation: "di atas" },
+            { word: "abroad", type: "adv.", level: "B2", translation: "di luar negeri, ke luar negeri" },
+            { word: "absolute", type: "adj.", level: "B2", translation: "mutlak, absolut, sepenuhnya" },
+            { word: "absolutely", type: "adv.", level: "B1", translation: "benar-benar, sama sekali, pastinya" },
+            { word: "academic", type: "adj.", level: "B1", translation: "akademis" },
+            { word: "accept", type: "v.", level: "A2", translation: "menerima" },
+            { word: "acceptable", type: "adj.", level: "B2", translation: "dapat diterima, pantas" },
+            { word: "access", type: "n., v.", level: "B1", translation: "akses, jalan masuk; mengakses" },
+            { word: "accident", type: "n.", level: "A2", translation: "kecelakaan, insiden" },
+            { word: "accompany", type: "v.", level: "B2", translation: "menemani, menyertai" },
+            { word: "according to", type: "prep.", level: "A2", translation: "menurut, berdasarkan" },
+            { word: "account", type: "n., v.", level: "B1 (n), B2 (v)", translation: "akun, rekening, laporan; menganggap" },
+            { word: "accurate", type: "adj.", level: "B2", translation: "akurat, tepat, saksama" },
+            { word: "accuse", type: "v.", level: "B2", translation: "menuduh, mendakwa" },
+            { word: "achieve", type: "v.", level: "A2", translation: "mencapai, meraih" }
+        ];
+
+        function App() {
+            const [cards, setCards] = useState(vocabData);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [isFlipped, setIsFlipped] = useState(false);
+
+            // Handle card flip
+            const handleFlip = () => {
+                setIsFlipped(!isFlipped);
+            };
+
+            // Go to next card
+            const nextCard = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    setCurrentIndex((prev) => (prev + 1) % cards.length);
+                }, 150); // small delay to hide text during flip back
+            };
+
+            // Go to previous card
+            const prevCard = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
+                }, 150);
+            };
+
+            // Shuffle cards
+            const shuffleCards = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    const shuffled = [...cards].sort(() => Math.random() - 0.5);
+                    setCards(shuffled);
+                    setCurrentIndex(0);
+                }, 200);
+            };
+
+            // Get level color badge
+            const getLevelColor = (level) => {
+                if (level.includes('A1')) return 'bg-green-100 text-green-800 border-green-300';
+                if (level.includes('A2')) return 'bg-teal-100 text-teal-800 border-teal-300';
+                if (level.includes('B1')) return 'bg-blue-100 text-blue-800 border-blue-300';
+                if (level.includes('B2')) return 'bg-indigo-100 text-indigo-800 border-indigo-300';
+                return 'bg-gray-100 text-gray-800 border-gray-300';
+            };
+
+            const currentCard = cards[currentIndex];
+
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-4 font-sans">
+                    
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2">Oxford 3000™</h1>
+                        <p className="text-gray-500">American English - Latihan Kosakata</p>
+                    </div>
+
+                    {/* Flashcard Container */}
+                    <div className="w-full max-w-md perspective-1000 cursor-pointer" onClick={handleFlip}>
+                        <div className={`relative w-full h-80 rounded-2xl shadow-xl transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+                            
+                            {/* FRONT OF CARD */}
+                            <div className="absolute w-full h-full backface-hidden bg-white rounded-2xl p-6 flex flex-col items-center justify-center border-t-4 border-blue-500">
+                                <div className="absolute top-4 right-4">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getLevelColor(currentCard.level)}`}>
+                                        {currentCard.level}
+                                    </span>
+                                </div>
+                                <div className="absolute top-4 left-4">
+                                    <span className="text-gray-400 text-sm italic">{currentCard.type}</span>
+                                </div>
+                                
+                                <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 mb-4 text-center">
+                                    {currentCard.word}
+                                </h2>
+                                
+                                <p className="text-gray-400 text-sm mt-8 animate-pulse flex items-center gap-2">
+                                    <i className="fa-solid fa-hand-pointer"></i> Ketuk untuk membalik
+                                </p>
+                            </div>
+
+                            {/* BACK OF CARD */}
+                            <div className="absolute w-full h-full backface-hidden bg-white rounded-2xl p-6 flex flex-col items-center justify-center border-t-4 border-green-500 rotate-y-180">
+                                <h3 className="text-gray-500 uppercase tracking-widest text-xs font-bold mb-4">Terjemahan</h3>
+                                <p className="text-2xl sm:text-3xl font-medium text-gray-800 text-center">
+                                    {currentCard.translation}
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {/* Progress Indicator */}
+                    <div className="mt-6 mb-4 text-gray-500 font-medium">
+                        Kartu {currentIndex + 1} dari {cards.length}
+                    </div>
+
+                    {/* Controls */}
+                    <div className="w-full max-w-md flex justify-between items-center gap-4">
+                        <button 
+                            onClick={prevCard}
+                            className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow transition-colors duration-200 flex items-center justify-center gap-2 active:scale-95"
+                        >
+                            <i className="fa-solid fa-chevron-left"></i> <span className="hidden sm:inline">Sebelumnya</span>
+                        </button>
+                        
+                        <button 
+                            onClick={shuffleCards}
+                            className="bg-gray-800 hover:bg-gray-900 text-white p-3 rounded-xl shadow transition-colors duration-200 active:scale-95"
+                            title="Acak Kartu"
+                        >
+                            <i className="fa-solid fa-shuffle"></i>
+                        </button>
+                        
+                        <button 
+                            onClick={nextCard}
+                            className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow transition-colors duration-200 flex items-center justify-center gap-2 active:scale-95"
+                        >
+                            <span className="hidden sm:inline">Selanjutnya</span> <i className="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
