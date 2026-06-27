@@ -12,31 +12,29 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel for JSX (Dipakukan ke versi stabil 7.21.4 untuk mencegah SyntaxError) -->
+    <!-- Babel for JSX -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.4/babel.min.js"></script>
     
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Custom CSS for 3D Flip Effect */
-        body {
-            background-color: #f3f4f6; /* Tailwind gray-100 */
+        body { background-color: #f3f4f6; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { 
+            transform-style: preserve-3d; 
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); 
         }
-        .perspective-1000 {
-            perspective: 1000px;
+        .backface-hidden { 
+            backface-visibility: hidden; 
+            -webkit-backface-visibility: hidden; 
         }
-        .transform-style-3d {
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-        }
-        .backface-hidden {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-            transform: rotateY(180deg);
-        }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        
+        /* Custom scrollbar for list */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -45,7 +43,7 @@
     <script type="text/babel" data-presets="react">
         const { useState, useEffect } = React;
 
-        // Data 20 kata pertama Oxford 3000
+        // Data 20 kata pertama Oxford 3000 (Bisa lo tambah sendiri nanti sampai 3000)
         const vocabData = [
             { word: "a, an", type: "indefinite article", level: "A1", translation: "sebuah, suatu, seekor" },
             { word: "abandon", type: "v.", level: "B2", translation: "meninggalkan, membiarkan" },
@@ -63,133 +61,380 @@
             { word: "accident", type: "n.", level: "A2", translation: "kecelakaan, insiden" },
             { word: "accompany", type: "v.", level: "B2", translation: "menemani, menyertai" },
             { word: "according to", type: "prep.", level: "A2", translation: "menurut, berdasarkan" },
-            { word: "account", type: "n., v.", level: "B1 (n), B2 (v)", translation: "akun, rekening, laporan; menganggap" },
+            { word: "account", type: "n., v.", level: "B1", translation: "akun, rekening, laporan; menganggap" },
             { word: "accurate", type: "adj.", level: "B2", translation: "akurat, tepat, saksama" },
             { word: "accuse", type: "v.", level: "B2", translation: "menuduh, mendakwa" },
-            { word: "achieve", type: "v.", level: "A2", translation: "mencapai, meraih" }
+            { word: "achieve", type: "v.", level: "A2", translation: "mencapai, meraih" },
+            // TAMBAHKAN KATA-KATA BARU DI BAWAH INI:
+            { word: "admit", type: "v.", level: "B1", translation: "mengakui, menerima kebenaran" },
+            { word: "adopt", type: "v.", level: "B2", translation: "mengadopsi, mengambil" },
+            { word: "adult", type: "n., adj.", level: "A1 (n), A2 (adj)", translation: "orang dewasa; dewasa" },
+            { word: "advance", type: "n., v., adj.", level: "B2", translation: "kemajuan; memajukan; di awal" },
+            { word: "advanced", type: "adj.", level: "B1", translation: "tingkat lanjut, mahir" },
+            { word: "advantage", type: "n.", level: "A2", translation: "keuntungan, kelebihan" },
+            { word: "adventure", type: "n.", level: "A2", translation: "petualangan" },
+            { word: "advertise", type: "v.", level: "A2", translation: "mengiklankan" },
+            { word: "advertisement", type: "n.", level: "A2", translation: "iklan" },
+            { word: "advertising", type: "n.", level: "A2", translation: "periklanan" },
+            { word: "advice", type: "n.", level: "A1", translation: "nasihat, saran" },
+            { word: "advise", type: "v.", level: "B1", translation: "menasihati, menyarankan" },
+            { word: "affair", type: "n.", level: "B2", translation: "urusan, skandal" },
+            { word: "affect", type: "v.", level: "A2", translation: "mempengaruhi" },
+            { word: "afford", type: "v.", level: "B1", translation: "mampu (membayar/melakukan)" },
+            { word: "afraid", type: "adj.", level: "A1", translation: "takut, khawatir" },
+            { word: "after", type: "prep., conj., adv.", level: "A1 (prep), A2", translation: "setelah, sesudah" },
+            { word: "afternoon", type: "n.", level: "A1", translation: "sore, siang hari" },
+            { word: "afterward", type: "adv.", level: "B2", translation: "setelah itu, kemudian" },
+            { word: "again", type: "adv.", level: "A1", translation: "lagi, kembali" },
+            { word: "against", type: "prep.", level: "A2", translation: "melawan, bertentangan dengan" },
+            { word: "age", type: "n., v.", level: "A1 (n), B1 (v)", translation: "usia, umur; menua" },
+            { word: "agency", type: "n.", level: "B2", translation: "agen, perwakilan, biro" },
+            { word: "agenda", type: "n.", level: "B2", translation: "agenda, acara" },
+            { word: "agent", type: "n.", level: "B1", translation: "agen, wakil" },
+            { word: "aggressive", type: "adj.", level: "B2", translation: "agresif, giat" },
+            { word: "ago", type: "adv.", level: "A1", translation: "yang lalu" },
+            { word: "agree", type: "v.", level: "A1", translation: "setuju, sependapat" },
+            { word: "agreement", type: "n.", level: "B1", translation: "perjanjian, kesepakatan" },
+            { word: "ah", type: "exclam.", level: "A2", translation: "ah! (seruan)" },
+            { word: "ahead", type: "adv.", level: "B1", translation: "di depan, lebih dulu" },
+            { word: "aid", type: "n., v.", level: "B2", translation: "bantuan; membantu" },
+            { word: "aim", type: "v., n.", level: "B1", translation: "bertujuan; tujuan, sasaran" },
+            { word: "air", type: "n.", level: "A1", translation: "udara" },
+            { word: "aircraft", type: "n.", level: "B2", translation: "pesawat terbang" },
+            { word: "airline", type: "n.", level: "A2", translation: "maskapai penerbangan" },
+            { word: "airport", type: "n.", level: "A1", translation: "bandara" },
+            { word: "alarm", type: "n., v.", level: "B1 (n), B2 (v)", translation: "alarm, peringatan; memperingatkan" },
+            { word: "album", type: "n.", level: "B1", translation: "album" },
+            { word: "alcohol", type: "n.", level: "B1", translation: "alkohol" },
+            { word: "alcoholic", type: "adj.", level: "B1", translation: "beralkohol, pecandu alkohol" },
+            { word: "alive", type: "adj.", level: "A2", translation: "hidup, bernyawa" },
+            { word: "all", type: "det., pron., adv.", level: "A1, A2 (adv)", translation: "semua, seluruh" },
+            { word: "all right", type: "adj./adv.", level: "A2", translation: "baiklah, tidak apa-apa" },
+            { word: "allow", type: "v.", level: "A2", translation: "mengizinkan, membiarkan" },
+            { word: "almost", type: "adv.", level: "A2", translation: "hampir" },
+            { word: "alone", type: "adj./adv.", level: "A2", translation: "sendirian" },
+            { word: "along", type: "prep., adv.", level: "A2", translation: "sepanjang, bersama" },
+            { word: "already", type: "adv.", level: "A2", translation: "sudah, telah" },
+            { word: "also", type: "adv.", level: "A1", translation: "juga, selain itu" }
         ];
 
         function App() {
-            const [cards, setCards] = useState(vocabData);
+            const [mode, setMode] = useState('flashcard');
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            
+            // Filters
+            const [levelFilter, setLevelFilter] = useState('all');
+            const [typeFilter, setTypeFilter] = useState('all');
+
+            // Derived filtered data
+            const filteredVocab = vocabData.filter(v => {
+                const matchLevel = levelFilter === 'all' || v.level.includes(levelFilter);
+                const matchType = typeFilter === 'all' || v.type.includes(typeFilter);
+                return matchLevel && matchType;
+            });
+            const activeData = filteredVocab.length > 0 ? filteredVocab : vocabData;
+
+            // Flashcard State
+            const [cards, setCards] = useState(activeData);
             const [currentIndex, setCurrentIndex] = useState(0);
             const [isFlipped, setIsFlipped] = useState(false);
 
-            // Handle card flip
-            const handleFlip = () => {
-                setIsFlipped(!isFlipped);
-            };
+            // Quiz State
+            const [quizCards, setQuizCards] = useState([]);
+            const [qIndex, setQIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            
+            // MCQ Specific State
+            const [options, setOptions] = useState([]);
+            const [selectedOpt, setSelectedOpt] = useState(null);
+            
+            // Typing Specific State
+            const [typeInput, setTypeInput] = useState('');
+            const [typeStatus, setTypeStatus] = useState(null);
 
-            // Go to next card
-            const nextCard = () => {
+            // Update cards if filter changes
+            useEffect(() => {
+                setCards(activeData);
+                setCurrentIndex(0);
                 setIsFlipped(false);
-                setTimeout(() => {
-                    setCurrentIndex((prev) => (prev + 1) % cards.length);
-                }, 150); // small delay to hide text during flip back
+            }, [levelFilter, typeFilter]);
+
+            // Quiz Logic
+            const startQuiz = (quizType) => {
+                const shuffled = [...activeData].sort(() => Math.random() - 0.5);
+                setQuizCards(shuffled);
+                setQIndex(0);
+                setScore(0);
+                
+                if (quizType === 'mcq') {
+                    generateOptions(shuffled[0], shuffled);
+                } else {
+                    setTypeInput('');
+                    setTypeStatus(null);
+                }
+                setMode(quizType);
+                setIsMenuOpen(false);
             };
 
-            // Go to previous card
-            const prevCard = () => {
-                setIsFlipped(false);
-                setTimeout(() => {
-                    setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
-                }, 150);
+            const generateOptions = (correctItem, allCards) => {
+                const wrongs = allCards.filter(v => v.word !== correctItem.word).sort(() => Math.random() - 0.5);
+                // Fallback to global vocab if filtered data is too small for 4 options
+                const safeWrongs = wrongs.length >= 3 ? wrongs.slice(0, 3) : vocabData.filter(v => v.word !== correctItem.word).slice(0, 3);
+                const opts = [correctItem, ...safeWrongs].sort(() => Math.random() - 0.5);
+                setOptions(opts);
+                setSelectedOpt(null);
             };
 
-            // Shuffle cards
-            const shuffleCards = () => {
-                setIsFlipped(false);
+            const handleMcqAnswer = (opt) => {
+                if (selectedOpt) return;
+                setSelectedOpt(opt);
+                if (opt.word === quizCards[qIndex].word) setScore(score + 1);
+                
                 setTimeout(() => {
-                    const shuffled = [...cards].sort(() => Math.random() - 0.5);
-                    setCards(shuffled);
-                    setCurrentIndex(0);
-                }, 200);
+                    if (qIndex + 1 < quizCards.length) {
+                        setQIndex(qIndex + 1);
+                        generateOptions(quizCards[qIndex + 1], quizCards);
+                    } else {
+                        setMode('result');
+                    }
+                }, 1500);
             };
 
-            // Get level color badge
-            const getLevelColor = (level) => {
-                if (level.includes('A1')) return 'bg-green-100 text-green-800 border-green-300';
-                if (level.includes('A2')) return 'bg-teal-100 text-teal-800 border-teal-300';
-                if (level.includes('B1')) return 'bg-blue-100 text-blue-800 border-blue-300';
-                if (level.includes('B2')) return 'bg-indigo-100 text-indigo-800 border-indigo-300';
+            const handleTypeSubmit = (e) => {
+                e.preventDefault();
+                if (typeStatus) return;
+                
+                // Cek kata pertama jika ada koma (misal "a, an" -> cek "a" atau "an")
+                const correctWords = quizCards[qIndex].word.split(',').map(w => w.trim().toLowerCase());
+                const userInput = typeInput.toLowerCase().trim();
+                
+                if (correctWords.includes(userInput)) {
+                    setTypeStatus('correct');
+                    setScore(score + 1);
+                } else {
+                    setTypeStatus('wrong');
+                }
+
+                setTimeout(() => {
+                    if (qIndex + 1 < quizCards.length) {
+                        setQIndex(qIndex + 1);
+                        setTypeInput('');
+                        setTypeStatus(null);
+                    } else {
+                        setMode('result');
+                    }
+                }, 2000);
+            };
+
+            const getLevelColor = (l) => {
+                if(l.includes('A1')) return 'bg-green-100 text-green-800 border-green-300';
+                if(l.includes('A2')) return 'bg-teal-100 text-teal-800 border-teal-300';
+                if(l.includes('B1')) return 'bg-blue-100 text-blue-800 border-blue-300';
+                if(l.includes('B2')) return 'bg-indigo-100 text-indigo-800 border-indigo-300';
                 return 'bg-gray-100 text-gray-800 border-gray-300';
             };
 
-            const currentCard = cards[currentIndex];
-
-            return (
-                <div className="min-h-screen flex flex-col items-center justify-center p-4 font-sans">
-                    
-                    {/* Header */}
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-800 mb-2">Oxford 3000™</h1>
-                        <p className="text-gray-500">American English - Latihan Kosakata</p>
+            const renderMenu = () => (
+                <div className="w-full max-w-md mb-6 relative z-50">
+                    <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border mb-4">
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-800">Oxford 3000™</h1>
+                            <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider">
+                                {mode === 'mcq' ? 'Kuis Ganda' : mode === 'typing' ? 'Active Recall' : mode === 'list' ? 'Daftar Kosakata' : mode === 'result' ? 'Hasil Kuis' : 'Flashcard'}
+                            </p>
+                        </div>
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-3 text-gray-600 hover:bg-gray-100 rounded-full transition w-12 h-12 flex items-center justify-center">
+                            <i className="fa-solid fa-ellipsis-vertical text-xl"></i>
+                        </button>
+                        
+                        {isMenuOpen && (
+                            <div className="absolute right-0 top-16 bg-white rounded-xl shadow-2xl border p-2 w-72 z-50">
+                                <div className="p-3 pb-2 border-b mb-2">
+                                    <p className="text-xs font-bold text-gray-400 uppercase mb-2">Pilih Mode</p>
+                                    <button onClick={() => {setMode('flashcard'); setIsMenuOpen(false);}} className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 text-sm ${mode === 'flashcard' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'hover:bg-gray-50 text-gray-700'}`}><i className="fa-solid fa-clone w-4"></i> Flashcard</button>
+                                    <button onClick={() => {setMode('list'); setIsMenuOpen(false);}} className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 text-sm ${mode === 'list' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'hover:bg-gray-50 text-gray-700'}`}><i className="fa-solid fa-list w-4"></i> Daftar Kata</button>
+                                    <button onClick={() => startQuiz('mcq')} className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 text-sm ${mode === 'mcq' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'hover:bg-gray-50 text-gray-700'}`}><i className="fa-solid fa-check-double w-4"></i> Kuis Ganda</button>
+                                    <button onClick={() => startQuiz('typing')} className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 text-sm ${mode === 'typing' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'hover:bg-gray-50 text-gray-700'}`}><i className="fa-solid fa-keyboard w-4"></i> Active Recall</button>
+                                </div>
+                                <div className="p-3 pt-1">
+                                    <p className="text-xs font-bold text-gray-400 uppercase mb-2">Filter Data</p>
+                                    <select value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)} className="w-full mb-2 p-2 border rounded-lg text-sm outline-none bg-gray-50">
+                                        <option value="all">Semua Level CEFR</option>
+                                        <option value="A1">Level A1</option>
+                                        <option value="A2">Level A2</option>
+                                        <option value="B1">Level B1</option>
+                                        <option value="B2">Level B2</option>
+                                    </select>
+                                    <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-full p-2 border rounded-lg text-sm outline-none bg-gray-50">
+                                        <option value="all">Semua Jenis Kata</option>
+                                        <option value="n.">Noun (Benda)</option>
+                                        <option value="v.">Verb (Kerja)</option>
+                                        <option value="adj.">Adjective (Sifat)</option>
+                                        <option value="adv.">Adverb (Keterangan)</option>
+                                        <option value="prep.">Preposition (Depan)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        )}
                     </div>
+                    {(levelFilter !== 'all' || typeFilter !== 'all') && (
+                        <div className="text-xs text-center text-indigo-600 bg-indigo-50 border border-indigo-100 py-1 px-3 rounded-full inline-block mx-auto w-full shadow-sm font-medium">
+                            Filter Aktif: {cards.length} kata ditemukan
+                        </div>
+                    )}
+                </div>
+            );
 
-                    {/* Flashcard Container */}
-                    <div className="w-full max-w-md perspective-1000 cursor-pointer" onClick={handleFlip}>
-                        <div className={`relative w-full h-80 rounded-2xl shadow-xl transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-                            
-                            {/* FRONT OF CARD */}
-                            <div className="absolute w-full h-full backface-hidden bg-white rounded-2xl p-6 flex flex-col items-center justify-center border-t-4 border-blue-500">
-                                <div className="absolute top-4 right-4">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getLevelColor(currentCard.level)}`}>
-                                        {currentCard.level}
-                                    </span>
-                                </div>
-                                <div className="absolute top-4 left-4">
-                                    <span className="text-gray-400 text-sm italic">{currentCard.type}</span>
-                                </div>
+            const renderFlashcard = () => {
+                if (cards.length === 0) return <div className="text-gray-500 text-center mt-10">Tidak ada kata yang cocok dengan filter.</div>;
+                const current = cards[currentIndex];
+                return (
+                    <div className="w-full max-w-md flex flex-col items-center">
+                        <div className="w-full perspective-1000 cursor-pointer mb-6" onClick={() => setIsFlipped(!isFlipped)}>
+                            <div className={`relative w-full h-80 transition-all duration-700 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
                                 
-                                <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 mb-4 text-center">
-                                    {currentCard.word}
-                                </h2>
-                                
-                                <p className="text-gray-400 text-sm mt-8 animate-pulse flex items-center gap-2">
-                                    <i className="fa-solid fa-hand-pointer"></i> Ketuk untuk membalik
-                                </p>
-                            </div>
+                                {/* Depan Kartu */}
+                                <div className="absolute w-full h-full backface-hidden bg-white rounded-3xl shadow-xl p-6 flex flex-col items-center justify-center border-t-4 border-indigo-500">
+                                    <div className="absolute top-4 right-4"><span className={`px-3 py-1 rounded-full text-xs font-bold border ${getLevelColor(current.level)}`}>{current.level}</span></div>
+                                    <div className="absolute top-4 left-4"><span className="text-gray-400 text-sm italic">{current.type}</span></div>
+                                    <h2 className="text-5xl font-black text-gray-800 mb-4 text-center">{current.word}</h2>
+                                    <p className="text-gray-400 text-sm absolute bottom-6 animate-pulse flex items-center gap-2"><i className="fa-solid fa-rotate"></i> Ketuk untuk arti</p>
+                                </div>
 
-                            {/* BACK OF CARD */}
-                            <div className="absolute w-full h-full backface-hidden bg-white rounded-2xl p-6 flex flex-col items-center justify-center border-t-4 border-green-500 rotate-y-180">
-                                <h3 className="text-gray-500 uppercase tracking-widest text-xs font-bold mb-4">Terjemahan</h3>
-                                <p className="text-2xl sm:text-3xl font-medium text-gray-800 text-center">
-                                    {currentCard.translation}
-                                </p>
+                                {/* Belakang Kartu */}
+                                <div className="absolute w-full h-full backface-hidden bg-white rounded-3xl shadow-xl p-6 flex flex-col items-center justify-center border-t-4 border-emerald-500 rotate-y-180">
+                                    <h3 className="text-gray-400 uppercase tracking-widest text-xs font-bold mb-4">Terjemahan</h3>
+                                    <p className="text-3xl font-bold text-gray-800 text-center">{current.translation}</p>
+                                </div>
                             </div>
+                        </div>
 
+                        {/* Navigasi Bawah */}
+                        <div className="text-gray-400 font-semibold mb-4 text-sm bg-white px-4 py-1 rounded-full shadow-sm">Kartu {currentIndex + 1} / {cards.length}</div>
+                        <div className="w-full flex justify-between items-center gap-3">
+                            <button onClick={() => {setIsFlipped(false); setTimeout(() => setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length), 150);}} className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-2xl shadow-md transition active:scale-95"><i className="fa-solid fa-arrow-left"></i></button>
+                            <button onClick={() => {setIsFlipped(false); setTimeout(() => { setCards([...cards].sort(() => Math.random() - 0.5)); setCurrentIndex(0); }, 200);}} className="bg-gray-800 hover:bg-gray-900 text-white p-4 rounded-2xl shadow-md transition active:scale-95 px-6"><i className="fa-solid fa-shuffle"></i></button>
+                            <button onClick={() => {setIsFlipped(false); setTimeout(() => setCurrentIndex((prev) => (prev + 1) % cards.length), 150);}} className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-2xl shadow-md transition active:scale-95"><i className="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
+                );
+            };
 
-                    {/* Progress Indicator */}
-                    <div className="mt-6 mb-4 text-gray-500 font-medium">
-                        Kartu {currentIndex + 1} dari {cards.length}
+            const renderList = () => (
+                <div className="w-full max-w-md flex flex-col gap-3 overflow-y-auto pb-8" style={{maxHeight: '75vh'}}>
+                    {cards.length === 0 && <p className="text-center text-gray-500">Tidak ada kata ditemukan.</p>}
+                    {cards.map((v, i) => (
+                        <div key={i} className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500">
+                            <div className="flex justify-between items-start mb-1">
+                                <h3 className="text-lg font-bold text-gray-800">{v.word}</h3>
+                                <span className={`px-2 py-1 text-xs rounded-md border font-semibold ${getLevelColor(v.level)}`}>{v.level}</span>
+                            </div>
+                            <p className="text-xs text-gray-400 italic mb-2">{v.type}</p>
+                            <p className="text-gray-700 font-medium">{v.translation}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+
+            const renderMCQ = () => {
+                if (quizCards.length === 0) return <div className="text-center mt-10">Data tidak cukup untuk kuis.</div>;
+                const current = quizCards[qIndex];
+                return (
+                    <div className="w-full max-w-md">
+                        <div className="mb-4 flex justify-between items-center text-sm font-bold text-gray-500 bg-white px-4 py-2 rounded-lg shadow-sm">
+                            <span>Soal {qIndex + 1} / {quizCards.length}</span>
+                            <span className="text-indigo-600 bg-indigo-50 px-2 py-1 rounded">Skor: {score}</span>
+                        </div>
+                        <div className="bg-white p-8 rounded-3xl shadow-md text-center mb-6 border-t-4 border-indigo-500">
+                            <h2 className="text-4xl font-black text-gray-800">{current.word}</h2>
+                            <p className="text-gray-400 mt-2 italic font-medium">{current.type}</p>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            {options.map((opt, i) => {
+                                let btnClass = "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200";
+                                if (selectedOpt) {
+                                    if (opt.word === current.word) btnClass = "bg-green-100 text-green-800 border-green-400 shadow-inner";
+                                    else if (opt.word === selectedOpt.word) btnClass = "bg-red-100 text-red-800 border-red-400 shadow-inner";
+                                    else btnClass = "bg-gray-50 text-gray-400 border-gray-200 opacity-50";
+                                }
+                                return (
+                                    <button key={i} onClick={() => handleMcqAnswer(opt)} disabled={!!selectedOpt}
+                                        className={`p-4 rounded-xl shadow-sm text-left font-bold transition-all ${btnClass}`}>
+                                        {opt.translation}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
+                );
+            };
 
-                    {/* Controls */}
-                    <div className="w-full max-w-md flex justify-between items-center gap-4">
-                        <button 
-                            onClick={prevCard}
-                            className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow transition-colors duration-200 flex items-center justify-center gap-2 active:scale-95"
-                        >
-                            <i className="fa-solid fa-chevron-left"></i> <span className="hidden sm:inline">Sebelumnya</span>
-                        </button>
-                        
-                        <button 
-                            onClick={shuffleCards}
-                            className="bg-gray-800 hover:bg-gray-900 text-white p-3 rounded-xl shadow transition-colors duration-200 active:scale-95"
-                            title="Acak Kartu"
-                        >
-                            <i className="fa-solid fa-shuffle"></i>
-                        </button>
-                        
-                        <button 
-                            onClick={nextCard}
-                            className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow transition-colors duration-200 flex items-center justify-center gap-2 active:scale-95"
-                        >
-                            <span className="hidden sm:inline">Selanjutnya</span> <i className="fa-solid fa-chevron-right"></i>
-                        </button>
+            const renderTyping = () => {
+                if (quizCards.length === 0) return <div className="text-center mt-10">Data tidak cukup untuk kuis.</div>;
+                const current = quizCards[qIndex];
+                return (
+                    <div className="w-full max-w-md">
+                        <div className="mb-4 flex justify-between items-center text-sm font-bold text-gray-500 bg-white px-4 py-2 rounded-lg shadow-sm">
+                            <span>Soal {qIndex + 1} / {quizCards.length}</span>
+                            <span className="text-pink-600 bg-pink-50 px-2 py-1 rounded">Skor: {score}</span>
+                        </div>
+                        <div className="bg-white p-8 rounded-3xl shadow-md text-center mb-6 border-t-4 border-pink-500">
+                            <p className="text-pink-400 uppercase tracking-widest text-xs font-bold mb-3">Terjemahkan ke Inggris</p>
+                            <h2 className="text-2xl font-bold text-gray-800">{current.translation}</h2>
+                            <p className="text-gray-400 mt-2 italic font-medium">{current.type}</p>
+                        </div>
+                        <form onSubmit={handleTypeSubmit} className="flex flex-col gap-4">
+                            <input 
+                                type="text" 
+                                value={typeInput}
+                                onChange={(e) => setTypeInput(e.target.value)}
+                                disabled={!!typeStatus}
+                                placeholder="Ketik bahasa Inggrisnya..."
+                                className={`w-full p-4 rounded-xl border-2 outline-none text-xl text-center font-bold shadow-sm transition-colors ${
+                                    typeStatus === 'correct' ? 'border-green-500 bg-green-50 text-green-700' : 
+                                    typeStatus === 'wrong' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 focus:border-pink-500'
+                                }`}
+                                autoFocus
+                            />
+                            {typeStatus === 'wrong' && (
+                                <div className="text-center text-red-700 font-bold bg-red-100 p-4 rounded-xl border border-red-200 shadow-inner">
+                                    <div className="text-xs uppercase text-red-500 mb-1">Jawaban Benar</div>
+                                    <div className="text-2xl">{current.word}</div>
+                                </div>
+                            )}
+                            <button type="submit" disabled={!!typeStatus || !typeInput.trim()}
+                                className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl shadow disabled:opacity-50 transition active:scale-95">
+                                {typeStatus ? 'Memproses...' : 'Cek Jawaban'}
+                            </button>
+                        </form>
                     </div>
+                );
+            };
 
+            const renderResult = () => (
+                <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl text-center border-t-4 border-yellow-400">
+                    <h2 className="text-3xl font-black text-gray-800 mb-2">Kuis Selesai! 🎉</h2>
+                    <p className="text-gray-500 font-medium mb-6">Kamu berhasil menjawab benar:</p>
+                    <div className="text-7xl font-black text-indigo-600 mb-8">
+                        {score} <span className="text-3xl text-gray-300">/ {quizCards.length}</span>
+                    </div>
+                    <button onClick={() => setMode('flashcard')} className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl shadow mb-3 transition active:scale-95">
+                        Kembali ke Flashcard
+                    </button>
+                    <button onClick={() => startQuiz(mode === 'mcq' ? 'mcq' : 'typing')} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-xl shadow transition active:scale-95">
+                        Ulangi Kuis
+                    </button>
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-start pt-6 pb-12 px-4 font-sans bg-gray-50 overflow-x-hidden">
+                    {renderMenu()}
+                    {mode === 'flashcard' && renderFlashcard()}
+                    {mode === 'list' && renderList()}
+                    {mode === 'mcq' && renderMCQ()}
+                    {mode === 'typing' && renderTyping()}
+                    {mode === 'result' && renderResult()}
                 </div>
             );
         }
